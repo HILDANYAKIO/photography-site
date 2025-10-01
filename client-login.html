@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Login - LensCraft Photography</title>
+    <meta name="description" content="Access your private photo gallery and view your photography session results.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="client-styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <h2>LensCraft</h2>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#portfolio" class="nav-link">Portfolio</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <button class="theme-toggle" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Client Login Section -->
+    <section class="client-login">
+        <div class="container">
+            <div class="login-container">
+                <div class="login-header">
+                    <h1>Client Portal</h1>
+                    <p>Access your private photo gallery and view your session results</p>
+                </div>
+                
+                <div class="login-form-container">
+                    <form class="login-form" id="client-login-form">
+                        <div class="form-group">
+                            <label for="client-email">Email Address</label>
+                            <input type="email" id="client-email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="client-password">Password</label>
+                            <input type="password" id="client-password" name="password" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="session-code">Session Code (Optional)</label>
+                            <input type="text" id="session-code" name="sessionCode" placeholder="Enter your session code">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary login-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Access Gallery
+                        </button>
+                    </form>
+                    
+                    <div class="login-help">
+                        <p>Don't have your login credentials?</p>
+                        <a href="index.html#contact" class="help-link">Contact us for access</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Client Gallery (Hidden initially) -->
+    <section class="client-gallery" id="client-gallery" style="display: none;">
+        <div class="container">
+            <div class="gallery-header">
+                <h2>Your Photo Gallery</h2>
+                <div class="gallery-actions">
+                    <button class="btn btn-secondary" id="download-selected">
+                        <i class="fas fa-download"></i>
+                        Download Selected
+                    </button>
+                    <button class="btn btn-secondary" id="order-prints">
+                        <i class="fas fa-print"></i>
+                        Order Prints
+                    </button>
+                    <button class="btn btn-secondary" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+            
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">All Photos</button>
+                <button class="filter-btn" data-filter="favorites">Favorites</button>
+                <button class="filter-btn" data-filter="portraits">Portraits</button>
+                <button class="filter-btn" data-filter="candids">Candids</button>
+                <button class="filter-btn" data-filter="details">Details</button>
+            </div>
+            
+            <div class="client-gallery-grid" id="client-gallery-grid">
+                <!-- Gallery items will be loaded dynamically -->
+            </div>
+            
+            <div class="gallery-pagination">
+                <button class="pagination-btn" id="prev-page" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                    Previous
+                </button>
+                <span class="page-info">
+                    Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+                </span>
+                <button class="pagination-btn" id="next-page">
+                    Next
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Print Order Modal -->
+    <div class="modal" id="print-order-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Prints</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="print-options">
+                    <div class="print-option">
+                        <h4>4x6 Prints</h4>
+                        <p>Standard size, perfect for albums</p>
+                        <div class="price">$2.50 each</div>
+                        <input type="number" min="0" value="0" class="quantity-input" data-size="4x6" data-price="2.50">
+                    </div>
+                    <div class="print-option">
+                        <h4>8x10 Prints</h4>
+                        <p>Large size, great for framing</p>
+                        <div class="price">$8.00 each</div>
+                        <input type="number" min="0" value="0" class="quantity-input" data-size="8x10" data-price="8.00">
+                    </div>
+                    <div class="print-option">
+                        <h4>11x14 Prints</h4>
+                        <p>Extra large, perfect for wall display</p>
+                        <div class="price">$15.00 each</div>
+                        <input type="number" min="0" value="0" class="quantity-input" data-size="11x14" data-price="15.00">
+                    </div>
+                </div>
+                <div class="order-summary">
+                    <h4>Order Summary</h4>
+                    <div id="order-items"></div>
+                    <div class="total">
+                        <strong>Total: $<span id="order-total">0.00</span></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-order">Cancel</button>
+                <button class="btn btn-primary" id="proceed-to-checkout">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LensCraft Photography</h3>
+                    <p>Capturing life's beautiful moments with professional photography services.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#portfolio">Portfolio</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Client Services</h4>
+                    <ul>
+                        <li><a href="client-login.html">Client Login</a></li>
+                        <li><a href="#">Download Photos</a></li>
+                        <li><a href="#">Order Prints</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p>+1 (555) 123-4567</p>
+                    <p>hello@lenscraftphotography.com</p>
+                    <p>New York, NY</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 LensCraft Photography. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="client-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>LensCraft Photography Blog</title>
+    <link>/index.html#blog</link>
+    <description>Updates, tips, and stories from LensCraft Photography.</description>
+    <language>en-us</language>
+    <item>
+      <title>10 Tips for Perfect Wedding Photography</title>
+      <link>/index.html#blog</link>
+      <description>Essential advice for capturing beautiful wedding moments that last a lifetime.</description>
+      <guid isPermaLink="false">post-1</guid>
+    </item>
+    <item>
+      <title>Behind the Scenes: Portrait Session</title>
+      <link>/index.html#blog</link>
+      <description>A look at the creative process during a recent portrait session.</description>
+      <guid isPermaLink="false">post-2</guid>
+    </item>
+  </channel>
+</rss>
+
+

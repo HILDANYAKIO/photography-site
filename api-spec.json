@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/openapi-3.1",
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LensCraft API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/availability": {
+      "get": {
+        "summary": "List available booking slots",
+        "parameters": [
+          {"name": "from", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+          {"name": "to", "in": "query", "schema": {"type": "string", "format": "date-time"}}
+        ],
+        "responses": {
+          "200": {"description": "OK"}
+        }
+      }
+    },
+    "/api/bookings": {
+      "post": {
+        "summary": "Create booking",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "email": {"type": "string", "format": "email"},
+                  "service": {"type": "string"},
+                  "start": {"type": "string", "format": "date-time"},
+                  "end": {"type": "string", "format": "date-time"}
+                },
+                "required": ["name", "email", "service", "start", "end"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Created"}
+        }
+      }
+    },
+    "/api/payments/deposit": {
+      "post": {
+        "summary": "Create deposit PaymentIntent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {"type": "string"},
+                  "amount": {"type": "integer"}
+                },
+                "required": ["bookingId", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {"200": {"description": "OK"}}
+      }
+    },
+    "/api/payments/webhook": {
+      "post": {
+        "summary": "Stripe webhook",
+        "responses": {"200": {"description": "OK"}}
+      }
+    }
+  }
+}
