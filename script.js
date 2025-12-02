@@ -110,8 +110,66 @@ function setupEventListeners() {
     // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
     
-    // Contact form
-    contactForm.addEventListener('submit', handleContactForm);
+    // Email link handlers - ensure mailto works properly
+    // Use a more reliable approach with event delegation
+    document.addEventListener('click', function(e) {
+        const emailLink = e.target.closest('a[href^="mailto:"]');
+        if (emailLink) {
+            e.preventDefault();
+            e.stopPropagation();
+            const mailto = emailLink.getAttribute('href');
+            // Try multiple methods to ensure it works
+            try {
+                // Method 1: Direct window.location
+                window.location.href = mailto;
+            } catch (err) {
+                // Method 2: Create temporary link
+                try {
+                    const tempLink = document.createElement('a');
+                    tempLink.href = mailto;
+                    tempLink.style.display = 'none';
+                    document.body.appendChild(tempLink);
+                    tempLink.click();
+                    setTimeout(() => document.body.removeChild(tempLink), 100);
+                } catch (err2) {
+                    console.error('Could not open email client:', err2);
+                }
+            }
+        }
+    });
+    
+    // Contact form - ensure it's properly attached
+    const formElement = document.getElementById('contact-form');
+    if (formElement) {
+        // Remove any existing listeners by cloning
+        const newForm = formElement.cloneNode(true);
+        formElement.parentNode.replaceChild(newForm, formElement);
+        
+        // Add the event listener to the new form
+        newForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Form submit event triggered');
+            return window.handleContactForm(e);
+        });
+        console.log('✓ Contact form event listener attached');
+    } else {
+        console.error('✗ Contact form not found!');
+        // Try again after a short delay
+        setTimeout(() => {
+            const retryForm = document.getElementById('contact-form');
+            if (retryForm) {
+                retryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return window.handleContactForm(e);
+                });
+                console.log('✓ Contact form event listener attached on retry');
+            } else {
+                console.error('✗ Contact form still not found after retry');
+            }
+        }, 500);
+    }
     
     // Lightbox events
     lightboxClose.addEventListener('click', closeLightbox);
@@ -263,57 +321,225 @@ function showNextImage() {
     lightboxImage.alt = filteredPortfolio[currentImageIndex].title;
 }
 
-function handleContactForm(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData);
-    // Compose booking payload
+// ============================================
+// CONTACT FORM HANDLER - VERSION 4 (EMAIL + SMS)
+// This form sends messages via:
+// 1. Email: Uses mailto: to open email client
+// 2. SMS: Sends SMS to your phone via API endpoint
+// ============================================
+window.handleContactForm = function(e) {
+    console.log('=== FORM SUBMISSION STARTED (v5 - email + SMS) ===');
     try {
-        const date = document.getElementById('date')?.value;
-        const startTime = document.getElementById('startTime')?.value;
-        const service = document.getElementById('service')?.value;
-        if (date && startTime && service) {
-            const start = new Date(`${date}T${startTime}`);
-            const end = new Date(start.getTime() + 60 * 60 * 1000); // default 1h slot
-            data.start = start.toISOString();
-            data.end = end.toISOString();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            // If called without event, prevent default form submission
+            const form = document.getElementById('contact-form');
+            if (form) {
+                e = { preventDefault: () => {}, stopPropagation: () => {}, target: form };
+            }
         }
-    } catch {}
-    
-    // Show loading state
-    const submitButton = contactForm.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-    submitButton.innerHTML = '<span class="loading"></span> Sending...';
-    submitButton.disabled = true;
-    
-    // Submit to booking API
-    fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        console.log('Form submitted! Sending via email (mailto) and SMS (API)'); // Debug log
+        
+        // Get form element - try multiple methods
+        let form = null;
+        if (e && e.target) {
+            form = e.target.tagName === 'FORM' ? e.target : e.target.closest('form');
+        }
+        if (!form) {
+            form = document.getElementById('contact-form');
+        }
+        if (!form) {
+            form = contactForm;
+        }
+        
+        if (!form) {
+            console.error('Form not found!');
+            alert('Form error. Please refresh the page and try again.');
+            return false;
+        }
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        console.log('Form data:', data); // Debug log
+        
+        // Show loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (!submitButton) {
+            console.error('Submit button not found!');
+            alert('Form error. Please refresh the page and try again.');
+            return false;
+        }
+        
+        const originalText = submitButton.textContent;
+        submitButton.innerHTML = '<span class="loading"></span> Sending...';
+        submitButton.disabled = true;
+        
+        // Validate required fields
+        if (!data.name || !data.email || !data.subject || !data.service) {
+            showNotification('Please fill in all required fields.', 'error');
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            return false;
+        }
+        
+        // Format date and time
+        let dateTimeStr = '';
+        try {
+            const date = document.getElementById('date')?.value;
+            const startTime = document.getElementById('startTime')?.value;
+            if (date && startTime) {
+                const dateObj = new Date(`${date}T${startTime}`);
+                dateTimeStr = dateObj.toLocaleString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        } catch (e) {
+            console.error('Date formatting error:', e);
+        }
+        
+        // Get service name
+        const serviceSelect = document.getElementById('service');
+        const serviceName = serviceSelect?.options[serviceSelect.selectedIndex]?.text || data.service || 'Not specified';
+        
+        // Create email body
+        const emailSubject = encodeURIComponent(data.subject || 'Booking Inquiry - Sufuria Arts');
+        const emailBody = encodeURIComponent(
+            `Hello Sufuria Arts,\n\n` +
+            `I would like to book a photography session.\n\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `BOOKING DETAILS\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+            `Name: ${data.name}\n` +
+            `Email: ${data.email}\n` +
+            `Service: ${serviceName}\n` +
+            (dateTimeStr ? `Preferred Date & Time: ${dateTimeStr}\n` : '') +
+            `\nMessage:\n${data.message || 'No additional message.'}\n\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `Thank you!\n` +
+            `${data.name}`
+        );
+        
+        // ===== SEND BOTH EMAIL AND SMS =====
+        // Email: Use mailto: to open email client
+        const mailtoLink = `mailto:sufuriayak@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+        
+        console.log('=== Sending message via Email and SMS ===');
+        console.log('Mailto link created (length:', mailtoLink.length, 'chars)');
+        
+        // Send SMS via API
+        sendSMSMessage({
             name: data.name,
             email: data.email,
+            subject: data.subject,
             service: data.service,
-            start: data.start,
-            end: data.end,
-            notes: data.message,
-            subject: data.subject
-        })
-    }).then(async (resp) => {
-        if (!resp.ok) throw new Error(await resp.text());
-        return resp.json();
-    }).then((json) => {
-        currentBookingId = json.id;
-        showNotification('Booking saved. Please pay a deposit to secure your slot.', 'info');
-        openDepositModal();
-    }).catch((err) => {
-        console.error(err);
-        showNotification('Sorry, something went wrong. Please try again.', 'error');
-    }).finally(() => {
-        submitButton.textContent = originalText;
-        submitButton.disabled = false;
-    });
+            message: data.message,
+            date: data.date,
+            time: data.startTime
+        }).catch(err => {
+            console.error('SMS sending failed (non-blocking):', err);
+            // Don't show error to user - email will still work
+        });
+        
+        // Show success message
+        showNotification('✓ Opening your email client... Message will also be sent via SMS!', 'success');
+        
+        // Open email client - use the most reliable method
+        setTimeout(() => {
+            try {
+                // Direct window.location.href is most reliable
+                window.location.href = mailtoLink;
+            } catch (e) {
+                console.error('Error opening email:', e);
+                // Fallback: Create temporary link
+                try {
+                    const link = document.createElement('a');
+                    link.href = mailtoLink;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        if (link.parentNode) {
+                            document.body.removeChild(link);
+                        }
+                    }, 100);
+                } catch (e2) {
+                    console.error('Fallback also failed:', e2);
+                showNotification('Please email sufuriayak@gmail.com with your booking details. Subject: ' + data.subject, 'info');
+                }
+            }
+        }, 100);
+        
+        // Reset form after a short delay
+        setTimeout(() => {
+            if (form) form.reset();
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error in form submission:', error);
+        
+        // Show user-friendly message
+        showNotification('✓ Form submitted! Your email client should open. If not, please email sufuriayak@gmail.com', 'info');
+        
+        // Try to open email client anyway
+        try {
+            const form = document.getElementById('contact-form');
+            const formData = form ? new FormData(form) : null;
+            const data = formData ? Object.fromEntries(formData) : {};
+            const mailtoLink = `mailto:sufuriayak@gmail.com?subject=${encodeURIComponent(data.subject || 'Booking Inquiry')}`;
+            window.location.href = mailtoLink;
+        } catch (e) {
+            console.error('Could not open email client:', e);
+        }
+        
+        // Reset form
+        const form = document.getElementById('contact-form');
+        const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+        if (form) form.reset();
+        if (submitButton) {
+            submitButton.textContent = 'Send Message';
+            submitButton.disabled = false;
+        }
+    }
+    
+    return false;
+};
+
+// Also expose as handleContactForm for compatibility
+const handleContactForm = window.handleContactForm;
+
+// Function to send SMS message via API
+async function sendSMSMessage(formData) {
+    try {
+        const response = await fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('SMS sent successfully:', result);
+        return result;
+    } catch (error) {
+        console.error('Failed to send SMS:', error);
+        // Return error but don't throw - we don't want to block email sending
+        return { success: false, error: error.message };
+    }
 }
 
 function ensureStripeInitialized() {
@@ -463,14 +689,32 @@ function initializeAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in-up');
+                entry.target.classList.add('fade-in-up', 'visible');
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
     
     // Observe elements for animation
-    const animateElements = document.querySelectorAll('.service-card, .blog-card, .testimonial, .about-text, .about-image');
-    animateElements.forEach(el => observer.observe(el));
+    const animateElements = document.querySelectorAll('.service-card, .blog-card, .testimonial, .about-text, .about-image, .contact-item, .portfolio-item');
+    animateElements.forEach(el => {
+        el.classList.add('fade-in-up');
+        observer.observe(el);
+    });
+    
+    // Lazy load images with fade-in
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.classList.add('loaded');
+                imageObserver.unobserve(img);
+            }
+        });
+    }, { rootMargin: '50px' });
+    
+    lazyImages.forEach(img => imageObserver.observe(img));
 }
 
 function initializeTestimonialSlider() {
