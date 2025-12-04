@@ -6,6 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma-Directive" content="no-cache">
+    <meta http-equiv="Cache-Directive" content="no-cache">
     <title>Sufuria Arts - Professional Photography Services</title>
     <meta name="description" content="Professional photography services including weddings, portraits, events, and commercial photography. Book your session today!">
     <meta name="keywords" content="photography, wedding photography, portrait photography, professional photographer">
@@ -32,11 +37,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=1.0.1">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=1.0.1">
+    <link rel="manifest" href="/manifest.webmanifest?v=2">
     <meta name="theme-color" content="#2c3e50">
 
     <script type="application/ld+json">
@@ -169,12 +174,15 @@
     </script>
 </head>
 <body>
+    <!-- TEMPORARY: Last updated 2025-12-04 12:43 PM -->
     <a class="skip-link" href="#main">Skip to content</a>
     <!-- Navigation -->
     <nav class="navbar" id="navbar" aria-label="Primary">
         <div class="nav-container">
             <div class="nav-logo">
-                <h2>Sufuria Arts</h2>
+                <a href="#home" aria-label="Sufuria Arts Home">
+                    <img src="assets/images/logo.png" alt="Sufuria Arts Logo" class="logo-img">
+                </a>
             </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item">
@@ -263,7 +271,7 @@
             </div>
         </div>
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80" alt="Professional photographer at work" loading="lazy" decoding="async">
+            <img src="assets/images/IMG_0764.jpg?v=2" alt="Sufuria Arts outdoor portrait session" loading="lazy" decoding="async">
         </div>
     </section>
 
@@ -380,50 +388,6 @@
             <p class="section-subtitle">Photography tips, behind-the-scenes stories, and inspiration</p>
             
             <div class="blog-grid">
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="assets/images/IMG_0455.jpg" alt="Elegant garden engagement session" loading="lazy" decoding="async">
-                        <div class="blog-date">
-                            <span class="day">22</span>
-                            <span class="month">Jan</span>
-                        </div>
-                    </div>
-                    <div class="blog-content">
-                        <h3>Elegant Garden Engagement Session</h3>
-                        <p>We spent golden hour in a hidden Nairobi garden capturing pure laughter, soft florals, and effortless love.</p>
-                        <a href="#" class="read-more">Read More</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="assets/images/IMG_0463.jpg" alt="Urban rooftop couple session" loading="lazy" decoding="async">
-                        <div class="blog-date">
-                            <span class="day">18</span>
-                            <span class="month">Jan</span>
-                        </div>
-                    </div>
-                    <div class="blog-content">
-                        <h3>Urban Love Story in Nairobi</h3>
-                        <p>This rooftop portrait series celebrates bold fashion, city lights, and authentic chemistry in the CBD.</p>
-                        <a href="#" class="read-more">Read More</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="assets/images/IMG_6131.jpg" alt="Bride getting ready with floral robe" loading="lazy" decoding="async">
-                        <div class="blog-date">
-                            <span class="day">15</span>
-                            <span class="month">Jan</span>
-                        </div>
-                    </div>
-                    <div class="blog-content">
-                        <h3>Sunlit Bridal Preparations</h3>
-                        <p>Soft window light, delicate lace, and heartfelt moments with the bridal party made this morning unforgettable.</p>
-                        <a href="#" class="read-more">Read More</a>
-                    </div>
-                </article>
 
                 <article class="blog-card">
                     <div class="blog-image">
@@ -464,9 +428,7 @@
                         </div>
                     </div>
                     <div class="blog-content">
-                        <h3>Golden Hour Newlyweds</h3>
-                        <p>A quiet stroll after the ceremony gave us dreamy backlit portraits and genuine just-married excitement.</p>
-                        <a href="#" class="read-more">Read More</a>
+                        re</a>
                     </div>
                 </article>
             </div>
@@ -671,8 +633,8 @@
     <script>
         window.STRIPE_PUBLISHABLE_KEY = 'pk_test_replace_me';
     </script>
-    <script src="https://js.stripe.com/v3"></script>
-    <script src="script.js?v=4"></script>
+    <script src="https://js.stripe.com/v3?v=1.0.1"></script>
+    <script src="script.js?v=1.0.1"></script>
     <script>
         // Check if Font Awesome loaded and show fallback if not
         document.addEventListener('DOMContentLoaded', function() {

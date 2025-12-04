@@ -211,10 +211,41 @@ h1, h2, h3, h4, h5, h6 {
     height: 70px;
 }
 
-.nav-logo h2 {
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    transition: filter 0.3s ease, transform 0.2s ease;
+    filter: invert(1) brightness(0) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--primary-color);
-    font-size: 1.8rem;
     margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .logo-img {
+    filter: invert(0) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
 .nav-menu {
